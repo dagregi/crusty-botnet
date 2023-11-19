@@ -6,14 +6,13 @@ use clap::Parser;
 use std::collections::HashMap;
 use std::{
     env,
-    fs::{self, File, OpenOptions},
-    io::{self, Write},
     net::{TcpListener, TcpStream},
     process,
 };
 
 mod args;
 mod repl;
+mod utils;
 
 fn main() {
     let args = Arguments::parse();
@@ -52,36 +51,6 @@ fn main() {
     // }
 }
 const ADDRESSES_PATH: &str = "./addresses.txt";
-// Utility functions for
-// file system management
-//
-// Creates the file
-fn create_file(path: &str) -> bool {
-    match File::create(path) {
-        Ok(_) => true,
-        Err(error) => {
-            eprintln!("Error creating file :{}", error);
-            false
-        }
-    }
-}
-
-// Writes to file
-fn write_file(path: &str, data: &str) {
-    match OpenOptions::new().append(true).write(true).open(path) {
-        Ok(mut file) => {
-            file.write_all(format!("{}\n", data).as_bytes())
-                .expect("Error writing to file");
-        }
-        Err(error) => eprintln!("Error opening file :{}", error),
-    }
-}
-
-// Parses x.x.x.x:pppp by spliting at ':'
-// and returns the ip x.x.x.x
-fn remove_port(addr: &str) -> &str {
-    addr.split(':').next().unwrap()
-}
 
 // Handlers for network connections
 //
