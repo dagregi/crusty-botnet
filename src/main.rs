@@ -1,3 +1,8 @@
+use args::{
+    Arguments,
+    Commands::{Connections, Execute},
+};
+use clap::Parser;
 use std::collections::HashMap;
 use std::{
     env,
@@ -7,36 +12,43 @@ use std::{
     process,
 };
 
+mod args;
+
 fn main() {
-    let listener = TcpListener::bind("127.0.0.1:42069").expect("Failed to start server");
-    println!("Server running on port :{}", init_env().port);
-
-    let mut connections: HashMap<String, TcpStream> = HashMap::new();
-
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                let addr = stream.peer_addr().unwrap().to_string();
-                println!("Connected to :{}", addr);
-                let ip = remove_port(&addr);
-
-                if connections.len() == init_env().connection_limit as usize {
-                    drop(stream);
-                    println!("Maximum connection reached!");
-                    continue;
-                }
-
-                if !connections.contains_key(ip) {
-                    write_file(ADDRESSES_PATH, ip);
-                }
-
-                connections.insert(ip.to_string(), stream.try_clone().unwrap());
-            }
-            Err(e) => {
-                eprintln!("Failed to accept connection: {}", e);
-            }
-        }
+    let args = Arguments::parse();
+    match args.sub_commands {
+        Connections => println!("sup bitch"),
+        Execute(val) => println!("whoa! :{:?}", val.commands),
     }
+    // let listener = TcpListener::bind("127.0.0.1:42069").expect("Failed to start server");
+    // println!("Server running on port :{}", init_env().port);
+
+    // let mut connections: HashMap<String, TcpStream> = HashMap::new();
+
+    // for stream in listener.incoming() {
+    //     match stream {
+    //         Ok(stream) => {
+    //             let addr = stream.peer_addr().unwrap().to_string();
+    //             println!("Connected to :{}", addr);
+    //             let ip = remove_port(&addr);
+
+    //             if connections.len() == init_env().connection_limit as usize {
+    //                 drop(stream);
+    //                 println!("Maximum connection reached!");
+    //                 continue;
+    //             }
+
+    //             if !connections.contains_key(ip) {
+    //                 write_file(ADDRESSES_PATH, ip);
+    //             }
+
+    //             connections.insert(ip.to_string(), stream.try_clone().unwrap());
+    //         }
+    //         Err(e) => {
+    //             eprintln!("Failed to accept connection: {}", e);
+    //         }
+    //     }
+    // }
 }
 const ADDRESSES_PATH: &str = "./addresses.txt";
 // Utility functions for
