@@ -13,6 +13,7 @@ use std::{
 };
 
 mod args;
+mod repl;
 
 fn main() {
     let args = Arguments::parse();
