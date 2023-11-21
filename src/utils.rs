@@ -31,7 +31,14 @@ pub fn read_file(path: &str) -> Option<String> {
     match File::open(path) {
         Ok(file) => {
             let buf = BufReader::new(file);
-            Some(buf.lines().map(|ln| ln.unwrap()).collect())
+            Some(
+                buf.lines()
+                    .map(|mut ln| {
+                        ln.as_mut().unwrap().push('\n');
+                        ln.unwrap()
+                    })
+                    .collect(),
+            )
         }
         Err(error) => {
             eprintln!("Error opening file :{}", error);
