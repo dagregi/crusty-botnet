@@ -14,6 +14,8 @@ pub enum Commands {
     Execute(ExecuteCommand),
     /// Show the number of connected hosts
     Connections,
+    /// Quit server
+    Quit,
 }
 
 #[derive(Debug, Args)]

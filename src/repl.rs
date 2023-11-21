@@ -2,7 +2,7 @@ use std::io::Write;
 
 use args::{
     Arguments,
-    Commands::{Connections, Execute},
+    Commands::{Connections, Execute, Quit},
 };
 use clap::Parser;
 
@@ -38,11 +38,16 @@ fn respond(line: &str) -> Result<bool, String> {
         .map_err(|e| e.to_string())?;
 
     match args.sub_commands {
-        Connections => println!("sup bitch"),
-        Execute(val) => println!("whoa! :{:?}", val.commands),
+        Connections => {
+            println!("sup bitch");
+            Ok(false)
+        }
+        Execute(val) => {
+            println!("whoa! :{:?}", val.commands);
+            Ok(false)
+        }
+        Quit => Ok(true),
     }
-
-    Ok(false)
 }
 
 fn readline() -> Result<String, String> {
