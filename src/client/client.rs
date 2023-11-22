@@ -1,7 +1,7 @@
 mod env;
 
 use std::{
-    io::{BufRead, BufReader, BufWriter, Write},
+    io::{BufRead, BufReader},
     net::TcpStream,
     process::Command,
     time::Duration,

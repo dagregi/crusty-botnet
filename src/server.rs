@@ -1,13 +1,12 @@
 use std::{
     collections::HashMap,
-    io::{self, Write},
+    io,
     net::{TcpListener, TcpStream},
-    thread,
 };
 
 use crate::{
     env::init_env,
-    handlers::get_connections,
+    repl::init_repl,
     utils::{remove_port, write_file},
 };
 
@@ -34,9 +33,8 @@ pub fn start_server() -> io::Result<()> {
                     write_file(crate::handlers::ADDRESSES_PATH, ip);
                 }
 
-                get_connections(&mut connections)?;
                 connections.insert(ip.to_string(), Some(stream.try_clone().unwrap()));
-                thread::spawn(move || handle_client(stream));
+                handle_client(&mut stream.try_clone().unwrap(), &mut connections).unwrap();
             }
             Err(e) => {
                 eprintln!("Failed to accept connection: {}", e);
@@ -46,14 +44,10 @@ pub fn start_server() -> io::Result<()> {
 
     Ok(())
 }
-fn handle_client(mut stream: TcpStream) -> Result<(), String> {
-    loop {
-        print!("Input: ");
-        io::stdout().flush().expect("failed to get it");
-        let mut input = String::new();
-        io::stdin()
-            .read_line(&mut input)
-            .map_err(|err| err.to_string())?;
-        stream.write_all(input.as_bytes()).unwrap();
-    }
+fn handle_client(
+    stream: &mut TcpStream,
+    connections: &mut HashMap<String, Option<TcpStream>>,
+) -> Result<(), String> {
+    init_repl(stream, connections).unwrap();
+    Ok(())
 }

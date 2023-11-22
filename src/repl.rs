@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::{collections::HashMap, io::Write, net::TcpStream};
 
 use args::{
     Arguments,
@@ -6,9 +6,14 @@ use args::{
 };
 use clap::Parser;
 
+use crate::handlers::get_connections;
+
 mod args;
 
-pub fn init_repl() -> Result<(), String> {
+pub fn init_repl(
+    stream: &mut TcpStream,
+    connections: &mut HashMap<String, Option<TcpStream>>,
+) -> Result<(), String> {
     loop {
         let line = readline()?;
         let line = line.trim();
@@ -16,7 +21,7 @@ pub fn init_repl() -> Result<(), String> {
             continue;
         }
 
-        match respond(line) {
+        match respond(line, stream, connections) {
             Ok(quit) => {
                 if quit {
                     break;
@@ -32,18 +37,24 @@ pub fn init_repl() -> Result<(), String> {
     Ok(())
 }
 
-fn respond(line: &str) -> Result<bool, String> {
-    let lns = shlex::split(line).ok_or("error: Invalid quoting")?;
-    let args = Arguments::try_parse_from(Some("".to_owned()).into_iter().chain(lns))
+fn respond(
+    line: &str,
+    stream: &mut TcpStream,
+    connections: &mut HashMap<String, Option<TcpStream>>,
+) -> Result<bool, String> {
+    let line = shlex::split(line).ok_or("error: Invalid quoting")?;
+    let args = Arguments::try_parse_from(Some("".to_owned()).into_iter().chain(line))
         .map_err(|e| e.to_string())?;
 
     match args.sub_commands {
         Connections => {
-            println!("sup bitch");
+            get_connections(connections).unwrap();
             Ok(false)
         }
         Execute(val) => {
-            println!("whoa! :{:?}", val.commands);
+            stream
+                .write_all(val.commands.first().unwrap().as_bytes())
+                .unwrap();
             Ok(false)
         }
         Quit => Ok(true),
