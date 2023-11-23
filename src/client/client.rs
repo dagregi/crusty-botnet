@@ -20,8 +20,8 @@ fn connect(attempts: i32) {
                 let args: Vec<&str> = input
                     .iter()
                     .enumerate()
-                    .filter(|(idx, _)| *idx != 0_usize)
-                    .map(|(_, v)| *v)
+                    .filter(|&(idx, _)| idx != 0)
+                    .map(|(_, &v)| v)
                     .collect();
                 let output = Command::new(cmd).args(args).output().unwrap();
                 println!("{}", String::from_utf8(output.stdout).unwrap());

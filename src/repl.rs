@@ -52,9 +52,16 @@ fn respond(
             Ok(false)
         }
         Execute(val) => {
-            stream
-                .write_all(val.commands.first().unwrap().as_bytes())
-                .unwrap();
+            let cmds: String = val
+                .commands
+                .clone()
+                .iter_mut()
+                .map(|v| {
+                    v.push(' ');
+                    v.to_string()
+                })
+                .collect();
+            stream.write_all(cmds.as_bytes()).unwrap();
             Ok(false)
         }
         Quit => Ok(true),

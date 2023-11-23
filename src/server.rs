@@ -21,7 +21,6 @@ pub fn start_server() -> io::Result<()> {
             Ok(stream) => {
                 let addr = stream.peer_addr().unwrap().to_string();
                 let ip = remove_port(&addr);
-                println!("Connected to: {}", ip);
 
                 if connections.len() == init_env().connection_limit as usize {
                     drop(stream);
@@ -34,7 +33,7 @@ pub fn start_server() -> io::Result<()> {
                 }
 
                 connections.insert(ip.to_string(), Some(stream.try_clone().unwrap()));
-                handle_client(&mut stream.try_clone().unwrap(), &mut connections).unwrap();
+                init_repl(&mut stream.try_clone().unwrap(), &mut connections).unwrap();
             }
             Err(e) => {
                 eprintln!("Failed to accept connection: {}", e);
@@ -42,12 +41,5 @@ pub fn start_server() -> io::Result<()> {
         }
     }
 
-    Ok(())
-}
-fn handle_client(
-    stream: &mut TcpStream,
-    connections: &mut HashMap<String, Option<TcpStream>>,
-) -> Result<(), String> {
-    init_repl(stream, connections).unwrap();
     Ok(())
 }
