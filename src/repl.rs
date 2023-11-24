@@ -10,6 +10,7 @@ use crate::handlers::get_connections;
 
 mod args;
 
+// TODO: fix up this hideous spaghetti code
 pub fn init_repl(
     stream: &mut TcpStream,
     connections: &mut HashMap<String, Option<TcpStream>>,

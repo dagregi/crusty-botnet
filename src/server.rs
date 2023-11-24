@@ -10,6 +10,7 @@ use crate::{
     utils::{remove_port, write_file},
 };
 
+// TODO: too many unwraps fix it
 pub fn start_server() -> io::Result<()> {
     let listener = TcpListener::bind("127.0.0.1:42069").expect("Failed to start server");
     println!("Server running on port: {}", init_env().port);
@@ -33,6 +34,7 @@ pub fn start_server() -> io::Result<()> {
                 }
 
                 connections.insert(ip.to_string(), Some(stream.try_clone().unwrap()));
+                // TODO: need to use a thread pool for multiple clients
                 init_repl(&mut stream.try_clone().unwrap(), &mut connections).unwrap();
             }
             Err(e) => {

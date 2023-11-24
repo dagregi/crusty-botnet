@@ -23,8 +23,10 @@ fn connect(attempts: i32) {
                     .filter(|&(idx, _)| idx != 0)
                     .map(|(_, &v)| v)
                     .collect();
-                let output = Command::new(cmd).args(args).output().unwrap();
-                println!("{}", String::from_utf8(output.stdout).unwrap());
+                if let Ok(output) = Command::new(cmd).args(args).output() {
+                    // don't know what to do with the output
+                    // maybe use spawn instead?
+                }
             }
             connect(init_env().retry_attempts);
         }
